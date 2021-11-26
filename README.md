@@ -10,6 +10,11 @@ Instituto Superior Técnico, Universidade de Lisboa
 
 ## 1. Introduction
 
+Sugestion: Install fwbuilder, if needed, before starting all configurations:
+```bash
+$ sudo apt install fwbuilder
+```
+
 Table 1 below shows the network topology configuration for this laboratory assignment. Based on the previous laboratory assignments of Virtual Networking and Traffic Analysis, _Initial configuration_ below on the left, the goal is to perform the necessary configuration changes to obtain the _Target configuration_ on the right.
 
 For that, you should proceed as follows:
@@ -45,7 +50,7 @@ The native firewall software in Linux is part of the kernel. However, you can us
 Start by flushing all existing rules (if there are any):
 
 ```bash
-$ sudo /usr/sbin/iptables –F
+$ sudo /sbin/iptables –F”
 ```
 
 ### 2.1. Simple Rules
@@ -57,13 +62,13 @@ Experiment with some simple rules in VM2.
 The following command adds a rule to drop all incoming ICMP packets.
 
 ```bash
-$ sudo /usr/sbin/iptables –A INPUT –p icmp –j DROP
+$ sudo /sbin/iptables –A INPUT –p icmp –j DROP
 ```
 
 This new rule can be seen by listing all rules managed by iptables:
 
 ```bash
-$ sudo /usr/sbin/iptables –L
+$ sudo /sbin/iptables –L
 ```
 
 Test this new rule by sending a ping from VM3 to VM2.
@@ -73,11 +78,13 @@ Test this new rule by sending a ping from VM3 to VM2.
 - Can you ping VM3 from VM4?
 - And VM4 from VM3?
 
+Sugestion: Use traceroute to understand how the ICMP packet is going to the destination.
+
 Use one of the following commands to erase this rule from VM2:
 
 ```bash
-$ sudo /usr/sbin/iptables –D INPUT 1
-$ sudo /usr/sbin/iptables –D INPUT –p icmp –j DROP
+$ sudo /sbin/iptables –D INPUT 1
+$ sudo /sbin/iptables –D INPUT –p icmp –j DROP
 ```
 
 #### 2.1.2. Ignore telnet connections
@@ -85,7 +92,7 @@ $ sudo /usr/sbin/iptables –D INPUT –p icmp –j DROP
 Confirm that you can establish a telnet connection to VM2 (for example, try from VM1). Block these connections using the following command (in VM2).
 
 ```bash
-$ sudo /usr/sbin/iptables –A INPUT –p tcp –-dport 23 –j DROP
+$ sudo /sbin/iptables –A INPUT –p tcp –-dport 23 –j DROP
 ```
 
 Check whether telnet connections to VM2 are still possible.
@@ -93,8 +100,8 @@ Check whether telnet connections to VM2 are still possible.
 Delete the previous rule by executing one of the following commands:
 
 ```bash
-$ sudo /usr/sbin/iptables –D INPUT 1
-$ sudo /usr/sbin/iptables –D INPUT –p tcp –-dport 23 –j DROP
+$ sudo /sbin/iptables –D INPUT 1
+$ sudo /sbin/iptables –D INPUT –p tcp –-dport 23 –j DROP
 ```
 
 #### 2.1.3. Ignore telnet connections from specific IP addresses
@@ -102,7 +109,7 @@ $ sudo /usr/sbin/iptables –D INPUT –p tcp –-dport 23 –j DROP
 Ignore telnet connections from VM1:
 
 ```bash
-$ sudo /usr/sbin/iptables –A INPUT –p tcp –s [host address] –-dport 23 –j DROP
+$ sudo /sbin/iptables –A INPUT –p tcp –s [host address] –-dport 23 –j DROP
 ```
 
 Check that all machines except VM1 are able to open a telnet connection with VM2.
@@ -112,7 +119,7 @@ Check that all machines except VM1 are able to open a telnet connection with VM2
 Ignore telnet connections from the subnet that includes VM4.
 
 ```bash
-$ /usr/sbin/iptables –A INPUT –p tcp –s 192.168.2.0/24 –-dport 23 –j DROP
+$ /sbin/iptables –A INPUT –p tcp –s 192.168.2.0/24 –-dport 23 –j DROP
 ```
 
 At this point you should not be able to open a telnet connection to VM2 from VM4.
@@ -120,7 +127,7 @@ At this point you should not be able to open a telnet connection to VM2 from VM4
 Delete all existing rules.
 
 ```bash
-$ sudo /usr/sbin/iptables –F
+$ sudo /sbin/iptables –F
 ```
 
 ### 2.2 Redirect connections
@@ -130,13 +137,13 @@ The previous exercises used the INPUT chain from the Filter table. This chain af
 We will now use the PREROUTING chain in the NAT table in order to redirect network packets (and perfrom DNAT and SNAT translations). To list all the rules of the NAT table use:
 
 ```bash
-$ sudo /usr/sbin/iptables -t nat -L
+$ sudo /sbin/iptables -t nat -L
 ```
 
 Run
 
 ```bash
-$ sudo /usr/sbin/iptables -t nat -A PREROUTING -–dst 192.168.0.10 -p tcp --dport 23 –j DNAT  --to-destination 192.168.1.1
+$ sudo /sbin/iptables -t nat -A PREROUTING -–dst 192.168.0.10 -p tcp --dport 23 –j DNAT  --to-destination 192.168.1.1
 ```
 
 Make a telnet connection from VM1 to VM2.
@@ -154,8 +161,8 @@ Use a browser in VM1 and go to `http://192.168.0.10` (this is VM2's address).
 Delete now all existing rules:
 
 ```bash
-$ sudo /usr/sbin/iptables –F
-$ sudo /usr/sbin/iptables -t nat –F
+$ sudo /sbin/iptables –F
+$ sudo /sbin/iptables -t nat –F
 ```
 
 ## 3. Fwbuilder
@@ -201,10 +208,11 @@ Run fwbuilder `$ fwbuilder` and create a new project.
 
 `fwbuilder` requires that the machine accepts ssh connections in order to install new firewall rules.
 
-- Create a folder to store the firewall rules (in the shell execute:
+- Create a folder to store the firewall rules (in the shell execute):
 
     ```bash
     $ sudo mkdir /etc/fw
+    $ sudo chmod seed.root /etc/fw
     ```
 
 - Create a new TCP service with destination port 22 (_Object -> New Object -> New TCP service_). Call it, for example, _TCP-AcceptSSH_.
