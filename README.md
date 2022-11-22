@@ -50,7 +50,7 @@ The native firewall software in Linux is part of the kernel. However, you can us
 Start by flushing all existing rules (if there are any):
 
 ```bash
-$ sudo /sbin/iptables –F”
+$ sudo /sbin/iptables –F
 ```
 
 ### 2.1. Simple Rules
