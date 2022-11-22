@@ -37,7 +37,7 @@ Please revise the previous lab assignments for instructions on how to obtain the
 | 2 | 192.168.1.254 | enp0s8 || 2 | 192.168.1.254 | enp0s8
 | 3 | INTERNET | enp0s9 || 3 | __192.168.2.254__ | enp0s9
 | __VM3__: |
-| 1 | 192.168.1.1 | enp0s3 || 1 | __192.168.2.254__ | enp0s3
+| 1 | 192.168.1.1 | enp0s3 || 1 | 192.168.1.1 | enp0s3
 | __VM4__: |
 | 1 | 192.168.1.4 | enp0s3 || 1 | __192.168.2.4__ | enp0s3
 
