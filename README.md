@@ -22,9 +22,9 @@ For that, you should proceed as follows:
 - Add a new Adapter 3 (enp0s9) to VM2 and attach it to a new Internal Network _sw-3_ (or change it if you already had a 3rd adapter on VM2).
 - Attach Adapter 3 to the subnet 192.168.2.0/24 and set VM2's IP address as 192.168.2.254 on that adapter's configuration.
 - Attach VM4's Adapter 1 to _sw-3_.
-- Attach Adapter 1 to the subnet 192.168.2.0/24 and set VM4's IP address as 192.168.2.4 on that adapter's configuration. Do not forget to change the default gateway to be 192.168.2.254.
+- Attach VM4's Adapter 1 to the subnet 192.168.2.0/24 and set VM4's IP address as 192.168.2.4 on that adapter's configuration. Do not forget to change the default gateway to be 192.168.2.254.
 
-You should apdapt to your adapter names accordingly.
+You should adapt to your adapter names accordingly.
 
 Please revise the previous lab assignments for instructions on how to obtain the initial configuration (left box of the table), taking into account whether you are using rnl-virt or VirtualBox.
 
@@ -37,7 +37,7 @@ Please revise the previous lab assignments for instructions on how to obtain the
 | 2 | 192.168.1.254 | enp0s8 || 2 | 192.168.1.254 | enp0s8
 | 3 | INTERNET | enp0s9 || 3 | __192.168.2.254__ | enp0s9
 | __VM3__: |
-| 1 | 192.168.1.1 | enp0s3 || 1 | 192.168.1.1 | enp0s3
+| 1 | 192.168.1.1 | enp0s3 || 1 | __192.168.2.254__ | enp0s3
 | __VM4__: |
 | 1 | 192.168.1.4 | enp0s3 || 1 | __192.168.2.4__ | enp0s3
 
