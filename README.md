@@ -190,6 +190,14 @@ Check that the default options have changed:
 ```bash
 $ sudo ufw status verbose
 ```
+if you want to delete UFW rules use
+```bash
+$ sudo ufw status numbered
+```
+to list all firewall rules in a numbered list and then you can simply delete them by their number:
+```bash
+$ sudo ufw delete <rule-number>
+```
 
 ### 3.1. Simple Rules
 
@@ -295,17 +303,18 @@ Make a telnet connection from VM1 to VM2.
 - Where are you then?
 - Confirm that the connection was established between VM1 and VM3 using the `netstat –t` command on VM3.
 
-In order to redirect http traffic to VM3 change from port 23 to 80 in the previous /etc/ufw/before.rules configuration and reload UFW again.
+In order to redirect http traffic to VM3 change parameter dport from 23 to 80 in the previous /etc/ufw/before.rules configuration and reload UFW again.
 
 Use a browser in VM1 and go to `http://192.168.0.10` (this is VM2's address).
 
-- Run `netstat –t` onm VM3 to confirm that the connection is in fact between VM1 and VM3:
+- Run `netstat –t` on VM3 to confirm that the connection is in fact between VM1 and VM3:
 
 To wrap up delete the changes to the before.rules file and reload UFW again.
 
 ## 4. Fwbuilder
 
-This section introduces _fwbuilder_, which is a cross-platform firewall management software. It should be used on VM2.
+This section introduces _fwbuilder_, which is a cross-platform firewall management software. It should be used on VM2. _fwbuilder_ is included only as an additional reference and as an example of a GUI-based firewall manager.
+
 First check if you have fwbuilder by running in the terminal:
 
     $ fwbuilder
