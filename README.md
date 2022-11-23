@@ -173,13 +173,13 @@ Start by enabling UFW:
 $ sudo ufw enable
 ```
 
-Contrary to iptables, UFW's default configuration is the conservative option of denying all incoming connections and routing paths. This is visible when UFWs' status is checked:
+Contrary to iptables, UFW's default configuration is the conservative option of denying all incoming connections and routing paths. This is visible when UFW's status is checked:
 
 ```bash
 $ sudo ufw status verbose
 ```
 
-Although this can be a good starting point for a firewall configuration, in order to replicate the tests in section 2 we will start by reversing this option with the following commands:
+Although this can be a good secure starting point for a firewall configuration, in order to replicate the tests in section 2 we will start by reversing this option with the following commands:
 
 ```bash
 $ sudo ufw default allow INCOMING
@@ -268,45 +268,41 @@ Delete all existing rules.
 $ sudo ufw reset
 $ sudo ufw enable
 ```
-<?
 ### 3.2 Redirect connections
 
 The previous exercises used rules for INCOMING packets.
 
-Let's look at how to perform NAT operations with UFW.
-
-We will now use the PREROUTING chain in the NAT table in order to redirect network packets (and perfrom DNAT and SNAT translations). 
-To list all the rules of the NAT table use:
+Let's look at how to perform NAT operations with UFW. For UFW on Ubuntu, the folder /etc/ufw contains UFW's configuration files.
+Let's experiment with rerouting telnet traffic <?from VM2 to VM3 ?>. Edit /etc/ufw/before.rules as root and add the following at the beggining of the file (23 is the telnet port):
 
 ```bash
-$ sudo /sbin/iptables -t nat -L
+# nat Table rules
+*nat
+:PREROUTING ACCEPT [0:0]
+# Forward traffic from eth1 through eth0.
+-A PREROUTING -i enp0s3 -d 192.168.0.10 -p tcp --dport 23 -j DNAT --to-destination 192.168.1.1:23
+# don't delete the 'COMMIT' line or these nat table rules won't be processed
+COMMIT
 ```
-
-Run
+and then restart UFW:
 
 ```bash
-$ sudo /sbin/iptables -t nat -A PREROUTING -–dst 192.168.0.10 -p tcp --dport 23 –j DNAT  --to-destination 192.168.1.1
+$ sudo ufw reload
 ```
-
 Make a telnet connection from VM1 to VM2.
 
 - Are you in VM2? Run `netstat –t` command on VM2.
 - Where are you then?
 - Confirm that the connection was established between VM1 and VM3 using the `netstat –t` command on VM3.
 
-In order to redirect http traffic to VM3 change from port 23 to 80 on the previous iptables command.
+In order to redirect http traffic to VM3 change from port 23 to 80 in the previous /etc/ufw/before.rules configuration and reload UFW again.
 
 Use a browser in VM1 and go to `http://192.168.0.10` (this is VM2's address).
 
 - Run `netstat –t` onm VM3 to confirm that the connection is in fact between VM1 and VM3:
 
-Delete now all existing rules:
+To wrap up delete the changes to the before.rules file and reload UFW again.
 
-```bash
-$ sudo /sbin/iptables –F
-$ sudo /sbin/iptables -t nat –F
-```
-?>
 ## 4. Fwbuilder
 
 This section introduces _fwbuilder_, which is a cross-platform firewall management software. It should be used on VM2.
