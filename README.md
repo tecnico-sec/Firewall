@@ -178,11 +178,23 @@ Contrary to iptables, UFW's default configuration is the conservative option of 
 ```bash
 $ sudo ufw status verbose
 ```
-<?
+
+Although this can be a good starting point for a firewall configuration, in order to replicate the tests in section 2 we will start by reversing this option with the following commands:
+
+```bash
+$ sudo ufw default allow INCOMING
+$ sudo ufw default allow FORWARD
+```
+Check that the default options have changed:
+
+```bash
+$ sudo ufw status verbose
+```
+
 ### 3.1. Simple Rules
 
 Experiment with some simple rules in VM2.
-
+<?
 #### 3.1.1. Reject ICMP packets
 
 UFW The following command adds a rule to drop all incoming ICMP packets.
@@ -218,33 +230,34 @@ $ sudo /sbin/iptables –D INPUT –p icmp –j DROP
 Confirm that you can establish a telnet connection to VM2 (for example, try from VM1). Block these connections using the following command (in VM2).
 
 ```bash
-$ sudo ufw deny telnet
+$ sudo ufw deny telnet  
 ```
 
 Check whether telnet connections to VM2 are still possible.
 
-Delete the previous rule by allowing telnet:
+Delete the previous rule:
 
 ```bash
 $ sudo ufw delete deny telnet
 ```
-<?
+
 #### 3.1.3. Ignore telnet connections from specific IP addresses
 
 Ignore telnet connections from VM1:
 
 ```bash
-$ sudo /sbin/iptables –A INPUT –p tcp –s [host address] –-dport 23 –j DROP
+$ sudo ufw deny from 192.168.0.100 to any port telnet
 ```
 
 Check that all machines except VM1 are able to open a telnet connection with VM2.
+
 
 #### 3.1.4. Ignore telnet connections from a specific subnet
 
 Ignore telnet connections from the subnet that includes VM4.
 
 ```bash
-$ /sbin/iptables –A INPUT –p tcp –s 192.168.2.0/24 –-dport 23 –j DROP
+$ sudo ufw deny from 192.168.2.0/24 to any port telnet
 ```
 
 At this point you should not be able to open a telnet connection to VM2 from VM4.
@@ -252,14 +265,18 @@ At this point you should not be able to open a telnet connection to VM2 from VM4
 Delete all existing rules.
 
 ```bash
-$ sudo /sbin/iptables –F
+$ sudo ufw reset
+$ sudo ufw enable
 ```
-
+<?
 ### 3.2 Redirect connections
 
-The previous exercises used the INPUT chain from the Filter table. This chain affects the packets addressed to the machine where the rule is being defined.
+The previous exercises used rules for INCOMING packets.
 
-We will now use the PREROUTING chain in the NAT table in order to redirect network packets (and perfrom DNAT and SNAT translations). To list all the rules of the NAT table use:
+Let's look at how to perform NAT operations with UFW.
+
+We will now use the PREROUTING chain in the NAT table in order to redirect network packets (and perfrom DNAT and SNAT translations). 
+To list all the rules of the NAT table use:
 
 ```bash
 $ sudo /sbin/iptables -t nat -L
