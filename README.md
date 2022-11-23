@@ -161,7 +161,7 @@ Delete now all existing rules:
 $ sudo /sbin/iptables –F
 $ sudo /sbin/iptables -t nat –F
 ```
-## 3. UFW
+## 3. UFW (Work in Progress)
 
 The default firewall configuration tool for Ubuntu is ufw, which simplifies the use of iptables. There is an excellent introduction to UFW at https://help.ubuntu.com/community/UFW#UFW_-_Uncomplicated_Firewall.
 
