@@ -178,7 +178,7 @@ Contrary to iptables, UFW's default configuration is the conservative option of 
 ```bash
 $ sudo ufw status verbose
 ```
-
+<?
 ### 3.1. Simple Rules
 
 Experiment with some simple rules in VM2.
@@ -212,7 +212,7 @@ Use one of the following commands to erase this rule from VM2:
 $ sudo /sbin/iptables –D INPUT 1
 $ sudo /sbin/iptables –D INPUT –p icmp –j DROP
 ```
-
+?>
 #### 3.1.2. Ignore telnet connections
 
 Confirm that you can establish a telnet connection to VM2 (for example, try from VM1). Block these connections using the following command (in VM2).
@@ -228,7 +228,7 @@ Delete the previous rule by allowing telnet:
 ```bash
 $ sudo ufw delete deny telnet
 ```
-
+<?
 #### 3.1.3. Ignore telnet connections from specific IP addresses
 
 Ignore telnet connections from VM1:
@@ -289,7 +289,7 @@ Delete now all existing rules:
 $ sudo /sbin/iptables –F
 $ sudo /sbin/iptables -t nat –F
 ```
-
+?>
 ## 4. Fwbuilder
 
 This section introduces _fwbuilder_, which is a cross-platform firewall management software. It should be used on VM2.
