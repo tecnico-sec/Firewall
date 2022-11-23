@@ -161,7 +161,7 @@ Delete now all existing rules:
 $ sudo /sbin/iptables –F
 $ sudo /sbin/iptables -t nat –F
 ```
-## 3. UFW (Work in Progress)
+## 3. UFW
 
 The default firewall configuration tool for Ubuntu is ufw, which simplifies the use of iptables. There is an excellent introduction to UFW at https://help.ubuntu.com/community/UFW#UFW_-_Uncomplicated_Firewall.
 
@@ -190,31 +190,21 @@ Check that the default options have changed:
 ```bash
 $ sudo ufw status verbose
 ```
-if you want to delete UFW rules use
-```bash
-$ sudo ufw status numbered
-```
-to list all firewall rules in a numbered list and then you can simply delete them by their number:
-```bash
-$ sudo ufw delete <rule-number>
-```
 
 ### 3.1. Simple Rules
 
-Experiment with some simple rules in VM2.
-<?
 #### 3.1.1. Reject ICMP packets
 
-UFW The following command adds a rule to drop all incoming ICMP packets.
+For UFW on Ubuntu, the folder /etc/ufw contains UFW's configuration files. Below we'll see other examples with simpler command line rules. However, processing ICMP packets, in this case dropping them, requires editing the /etc/ufw/before.rules file. Edit the file as root, find the following line
 
 ```bash
-$ sudo /sbin/iptables –A INPUT –p icmp –j DROP
+-A ufw-before-input -p icmp --icmp-type echo-request -j ACCEPT
 ```
 
-This new rule can be seen by listing all rules managed by iptables:
+and replace ACCEPT with DROP. Reload UFW bu running:
 
 ```bash
-$ sudo /sbin/iptables –L
+$ sudo ufw reload
 ```
 
 Test this new rule by sending a ping from VM3 to VM2.
@@ -223,18 +213,20 @@ Test this new rule by sending a ping from VM3 to VM2.
 - Were you able to see (on VM2) the ping from VM3? Why not?
 - Can you ping VM3 from VM4?
 - And VM4 from VM3?
+ 
 
-Sugestion: Use traceroute to understand how the ICMP packet is going to the destination.
-
-Use one of the following commands to erase this rule from VM2:
-
+Sugestion: Use traceroute to understand how the ICMP packet is going to the destination. Also if you want VM2 to completely discard any ICMP packet it sees
+do the same change from ACCEPT to DROP in the same file in the following line:
 ```bash
-$ sudo /sbin/iptables –D INPUT 1
-$ sudo /sbin/iptables –D INPUT –p icmp –j DROP
+-A ufw-before-forward -p icmp --icmp-type echo-request -j ACCEPT
 ```
-?>
+
+Undo the change(s) to the rules file and reload UFW again.
+
+
 #### 3.1.2. Ignore telnet connections
 
+Experiment with some simple rules in VM2 to ignore telnet connections.
 Confirm that you can establish a telnet connection to VM2 (for example, try from VM1). Block these connections using the following command (in VM2).
 
 ```bash
@@ -243,10 +235,19 @@ $ sudo ufw deny telnet
 
 Check whether telnet connections to VM2 are still possible.
 
-Delete the previous rule:
-
+Delete the previous rule by running:
 ```bash
 $ sudo ufw delete deny telnet
+```
+OR by listing the existing rules as a numbered list:
+
+```bash
+$ sudo ufw status numbered
+```
+and then you can simply deleting the one added above by its number:
+
+```bash
+$ sudo ufw delete <rule-number>
 ```
 
 #### 3.1.3. Ignore telnet connections from specific IP addresses
@@ -270,17 +271,16 @@ $ sudo ufw deny from 192.168.2.0/24 to any port telnet
 
 At this point you should not be able to open a telnet connection to VM2 from VM4.
 
-Delete all existing rules.
-
+Delete all existing rules:
 ```bash
 $ sudo ufw reset
 $ sudo ufw enable
 ```
 ### 3.2 Redirect connections
 
-The previous exercises used rules for INCOMING packets.
+The previous exercises used rules for incoming packets.
 
-Let's look at how to perform NAT operations with UFW. For UFW on Ubuntu, the folder /etc/ufw contains UFW's configuration files.
+Let's look at how to perform NAT operations with UFW.
 Let's experiment with rerouting telnet traffic <?from VM2 to VM3 ?>. Edit /etc/ufw/before.rules as root and add the following at the beggining of the file (23 is the telnet port):
 
 ```bash
@@ -297,6 +297,7 @@ and then restart UFW:
 ```bash
 $ sudo ufw reload
 ```
+
 Make a telnet connection from VM1 to VM2.
 
 - Are you in VM2? Run `netstat –t` command on VM2.
@@ -311,7 +312,7 @@ Use a browser in VM1 and go to `http://192.168.0.10` (this is VM2's address).
 
 To wrap up delete the changes to the before.rules file and reload UFW again.
 
-## 4. Fwbuilder
+## 4. Fwbuilder (Additional reference example)
 
 This section introduces _fwbuilder_, which is a cross-platform firewall management software. It should be used on VM2. _fwbuilder_ is included only as an additional reference and as an example of a GUI-based firewall manager.
 
