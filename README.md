@@ -10,16 +10,21 @@ Instituto Superior Técnico, Universidade de Lisboa
 
 ## 1. Introduction
 
-This guide shows you how to configure a firewall using iptables (Section 2), UFW (Section 3) and a graphical firewall configuration tool, fwbuilder (Section 4). The fwbuilder section is available just for reference. The iptables and ufw section detail exactly the same firewall configurations. Although iptables is the most established firewall configuration tool, ufw provides a simpler syntax. 
+This guide shows you how to configure a firewall using iptables (Section 2), UFW (Section 3) and a graphical firewall configuration tool, fwbuilder (Section 4).
+The fwbuilder section is available just for reference.
+The iptables and ufw section detail exactly the same firewall configurations.
+Although iptables is the most established firewall configuration tool, ufw provides a simpler syntax.
 
-This lab guide requires adapting the network setup from previous labs. Table 1 below shows the network topology configuration for this laboratory assignment. Based on the previous laboratory assignments of Virtual Networking and Traffic Analysis, _Initial configuration_ below on the left, the goal is to perform the necessary configuration changes to obtain the _Target configuration_ on the right.
+This lab guide requires adapting the network setup from previous labs.
+Table 1 below shows the network topology configuration for this laboratory assignment.
+Based on the previous laboratory assignments of Virtual Networking and Traffic Analysis, _Initial configuration_ below on the left, the goal is to perform the necessary configuration changes to obtain the _Target configuration_ on the right.
 
 For that, you should proceed as follows:
 
-- Add a new Adapter 3 (enp0s9) to VM2 and attach it to a new Internal Network _sw-3_ (or change it if you already had a 3rd adapter on VM2).
-- Attach Adapter 3 to the subnet 192.168.2.0/24 and set VM2's IP address as 192.168.2.254 on that adapter's configuration.
-- Attach VM4's Adapter 1 to _sw-3_.
-- Attach VM4's Adapter 1 to the subnet 192.168.2.0/24 and set VM4's IP address as 192.168.2.4 on that adapter's configuration. Do not forget to change the default gateway to be 192.168.2.254.
+- Add a new Adapter 3 (enp0s9) to VM2 and attach it to a new Internal Network _sw-3_ (or change it if you already had a 3rd adapter on VM2);
+- Attach Adapter 3 to the subnet `192.168.2.0/24` and set VM2's IP address as `192.168.2.254` on that adapter's configuration;
+- Attach VM4's Adapter 1 to _sw-3_;
+- Attach VM4's Adapter 1 to the subnet `192.168.2.0/24` and set VM4's IP address as `192.168.2.4` on that adapter's configuration. Do not forget to change the default gateway to be `192.168.2.254`.
 
 You should adapt to your adapter names accordingly.
 
@@ -42,11 +47,13 @@ _Table 1: Initial Configuration (from Virtual Networking and Traffic Analysis la
 
 ## 2. iptables
 
-The native firewall software in Linux is part of the kernel. However, you can use the iptables tool (man iptables) to manage its rules. All the rules below should be applied in VM2 unless it is said otherwise.
+The native firewall software in Linux is part of the kernel.
+However, you can use the iptables tool (man iptables) to manage its rules.
+All the rules below should be applied in VM2 unless it is said otherwise.
 
 Start by flushing all existing rules (if there are any):
 
-```bash
+```sh
 $ sudo /sbin/iptables –F
 ```
 
@@ -58,13 +65,13 @@ Experiment with some simple rules in VM2.
 
 The following command adds a rule to drop all incoming ICMP packets.
 
-```bash
+```sh
 $ sudo /sbin/iptables –A INPUT –p icmp –j DROP
 ```
 
 This new rule can be seen by listing all rules managed by iptables:
 
-```bash
+```sh
 $ sudo /sbin/iptables –L
 ```
 
@@ -79,14 +86,15 @@ Sugestion: Use traceroute to understand how the ICMP packet is going to the dest
 
 Use one of the following commands to erase this rule from VM2:
 
-```bash
+```sh
 $ sudo /sbin/iptables –D INPUT 1
 $ sudo /sbin/iptables –D INPUT –p icmp –j DROP
 ```
 
 #### 2.1.2. Ignore telnet connections
 
-Confirm that you can establish a telnet connection to VM2 (for example, try from VM1). Block these connections using the following command (in VM2).
+Confirm that you can establish a telnet connection to VM2 (for example, try from VM1).
+Block these connections using the following command (in VM2).
 
 ```bash
 $ sudo /sbin/iptables –A INPUT –p tcp –-dport 23 –j DROP
@@ -105,7 +113,7 @@ $ sudo /sbin/iptables –D INPUT –p tcp –-dport 23 –j DROP
 
 Ignore telnet connections from VM1:
 
-```bash
+```sh
 $ sudo /sbin/iptables –A INPUT –p tcp –s [host address] –-dport 23 –j DROP
 ```
 
@@ -115,7 +123,7 @@ Check that all machines except VM1 are able to open a telnet connection with VM2
 
 Ignore telnet connections from the subnet that includes VM4.
 
-```bash
+```sh
 $ /sbin/iptables –A INPUT –p tcp –s 192.168.2.0/24 –-dport 23 –j DROP
 ```
 
@@ -123,23 +131,25 @@ At this point you should not be able to open a telnet connection to VM2 from VM4
 
 Delete all existing rules.
 
-```bash
+```sh
 $ sudo /sbin/iptables –F
 ```
 
 ### 2.2 Redirect connections
 
-The previous exercises used the INPUT chain from the Filter table. This chain affects the packets addressed to the machine where the rule is being defined.
+The previous exercises used the INPUT chain from the Filter table.
+This chain affects the packets addressed to the machine where the rule is being defined.
 
-We will now use the PREROUTING chain in the NAT table in order to redirect network packets (and perfrom DNAT and SNAT translations). To list all the rules of the NAT table use:
+We will now use the PREROUTING chain in the NAT table in order to redirect network packets (and perfrom DNAT and SNAT translations).
+To list all the rules of the NAT table use:
 
-```bash
+```sh
 $ sudo /sbin/iptables -t nat -L
 ```
 
-Run
+Run:
 
-```bash
+```sh
 $ sudo /sbin/iptables -t nat -A PREROUTING -–dst 192.168.0.10 -p tcp --dport 23 –j DNAT  --to-destination 192.168.1.1
 ```
 
@@ -149,7 +159,7 @@ Make a telnet connection from VM1 to VM2.
 - Where are you then?
 - Confirm that the connection was established between VM1 and VM3 using the `netstat –t` command on VM3.
 
-In order to redirect http traffic to VM3 change from port 23 to 80 on the previous iptables command.
+In order to redirect http traffic to VM3 change from port `23` to `80` on the previous iptables command.
 
 Use a browser in VM1 and go to `http://192.168.0.10` (this is VM2's address).
 
@@ -157,13 +167,15 @@ Use a browser in VM1 and go to `http://192.168.0.10` (this is VM2's address).
 
 Delete now all existing rules:
 
-```bash
+```sh
 $ sudo /sbin/iptables –F
 $ sudo /sbin/iptables -t nat –F
 ```
+
 ## 3. UFW
 
-The default firewall configuration tool for Ubuntu is ufw, which simplifies the use of iptables. There is an excellent introduction to UFW at https://help.ubuntu.com/community/UFW#UFW_-_Uncomplicated_Firewall.
+The default firewall configuration tool for Ubuntu is ufw, which simplifies the use of iptables.
+There is an excellent introduction to UFW at <https://help.ubuntu.com/community/UFW#UFW_-_Uncomplicated_Firewall>.
 
 All the rules below should be applied in VM2 unless it is said otherwise.
 
@@ -173,21 +185,23 @@ Start by enabling UFW:
 $ sudo ufw enable
 ```
 
-Contrary to iptables, UFW's default configuration is the conservative option of denying all incoming connections and routing paths. This is visible when UFW's status is checked:
+Contrary to iptables, UFW's default configuration is the conservative option of denying all incoming connections and routing paths.
+This is visible when UFW's status is checked:
 
-```bash
+```sh
 $ sudo ufw status verbose
 ```
 
 Although this can be a good secure starting point for a firewall configuration, in order to replicate the tests in section 2 we will start by reversing this option with the following commands:
 
-```bash
+```sh
 $ sudo ufw default allow INCOMING
 $ sudo ufw default allow FORWARD
 ```
+
 Check that the default options have changed:
 
-```bash
+```sh
 $ sudo ufw status verbose
 ```
 
@@ -195,15 +209,18 @@ $ sudo ufw status verbose
 
 #### 3.1.1. Reject ICMP packets
 
-For UFW on Ubuntu, the folder /etc/ufw contains UFW's configuration files. Below we'll see other examples with simpler command line rules. However, processing ICMP packets, in this case dropping them, requires editing the /etc/ufw/before.rules file. Edit the file as root, find the following line
+For UFW on Ubuntu, the folder `/etc/ufw` contains UFW's configuration files.
+Below we will see other examples with simpler command line rules.
+However, processing ICMP packets, in this case dropping them, requires editing the `/etc/ufw/before.rules` file.
+Edit the file as root, find the following line
 
-```bash
+```sh
 -A ufw-before-input -p icmp --icmp-type echo-request -j ACCEPT
 ```
 
 and replace ACCEPT with DROP. Reload UFW bu running:
 
-```bash
+```sh
 $ sudo ufw reload
 ```
 
@@ -214,20 +231,20 @@ Test this new rule by sending a ping from VM3 to VM2.
 - Can you ping VM3 from VM4?
 - And VM4 from VM3?
  
+Sugestion: Use traceroute to understand how the ICMP packet is going to the destination.
+Also if you want VM2 to completely discard any ICMP packet it sees do the same change from ACCEPT to DROP in the same file in the following line:
 
-Sugestion: Use traceroute to understand how the ICMP packet is going to the destination. Also if you want VM2 to completely discard any ICMP packet it sees
-do the same change from ACCEPT to DROP in the same file in the following line:
-```bash
+```sh
 -A ufw-before-forward -p icmp --icmp-type echo-request -j ACCEPT
 ```
 
 Undo the change(s) to the rules file and reload UFW again.
 
-
 #### 3.1.2. Ignore telnet connections
 
 Experiment with some simple rules in VM2 to ignore telnet connections.
-Confirm that you can establish a telnet connection to VM2 (for example, try from VM1). Block these connections using the following command (in VM2).
+Confirm that you can establish a telnet connection to VM2 (for example, try from VM1).
+Block these connections using the following command (in VM2).
 
 ```bash
 $ sudo ufw deny telnet  
@@ -236,17 +253,20 @@ $ sudo ufw deny telnet
 Check whether telnet connections to VM2 are still possible.
 
 Delete the previous rule by running:
-```bash
+
+```sh
 $ sudo ufw delete deny telnet
 ```
+
 OR by listing the existing rules as a numbered list:
 
-```bash
+```sh
 $ sudo ufw status numbered
 ```
+
 and then you can simply deleting the one added above by its number:
 
-```bash
+```sh
 $ sudo ufw delete <rule-number>
 ```
 
@@ -254,47 +274,49 @@ $ sudo ufw delete <rule-number>
 
 Ignore telnet connections from VM1:
 
-```bash
+```sh
 $ sudo ufw deny from 192.168.0.100 to any port telnet
 ```
 
 Check that all machines except VM1 are able to open a telnet connection with VM2.
 
-
 #### 3.1.4. Ignore telnet connections from a specific subnet
 
 Ignore telnet connections from the subnet that includes VM4.
 
-```bash
+```sh
 $ sudo ufw deny from 192.168.2.0/24 to any port telnet
 ```
 
 At this point you should not be able to open a telnet connection to VM2 from VM4.
 
 Delete all existing rules:
-```bash
+```sh
 $ sudo ufw reset
 $ sudo ufw enable
 ```
+
 ### 3.2 Redirect connections
 
 The previous exercises used rules for incoming packets.
 
-Let's look at how to perform NAT operations with UFW.
-Let's experiment with rerouting telnet traffic <?from VM2 to VM3 ?>. Edit /etc/ufw/before.rules as root and add the following at the beggining of the file (23 is the telnet port):
+Let us look at how to perform NAT operations with UFW.
+Let us experiment with rerouting telnet traffic <?from VM2 to VM3 ?>.
+Edit /etc/ufw/before.rules as root and add the following at the beggining of the file (`23` is the telnet port):
 
-```bash
+```txt
 # nat Table rules
 *nat
 :PREROUTING ACCEPT [0:0]
 # Forward traffic from eth1 through eth0.
 -A PREROUTING -i enp0s3 -d 192.168.0.10 -p tcp --dport 23 -j DNAT --to-destination 192.168.1.1:23
-# don't delete the 'COMMIT' line or these nat table rules won't be processed
+# do not delete the 'COMMIT' line or these nat table rules will not be processed
 COMMIT
 ```
+
 and then restart UFW:
 
-```bash
+```sh
 $ sudo ufw reload
 ```
 
@@ -304,7 +326,7 @@ Make a telnet connection from VM1 to VM2.
 - Where are you then?
 - Confirm that the connection was established between VM1 and VM3 using the `netstat –t` command on VM3.
 
-In order to redirect http traffic to VM3 change parameter dport from 23 to 80 in the previous /etc/ufw/before.rules configuration and reload UFW again.
+In order to redirect http traffic to VM3 change parameter dport from `23` to `80` in the previous `/etc/ufw/before.rules` configuration and reload UFW again.
 
 Use a browser in VM1 and go to `http://192.168.0.10` (this is VM2's address).
 
@@ -314,7 +336,8 @@ To wrap up delete the changes to the before.rules file and reload UFW again.
 
 ## 4. Fwbuilder (Additional reference example)
 
-This section introduces _fwbuilder_, which is a cross-platform firewall management software. It should be used on VM2. _fwbuilder_ is included only as an additional reference and as an example of a GUI-based firewall manager.
+This section introduces _fwbuilder_, which is a cross-platform firewall management software.
+It should be used on VM2. _fwbuilder_ is included only as an additional reference and as an example of a GUI-based firewall manager.
 
 First check if you have fwbuilder by running in the terminal:
 
@@ -331,9 +354,11 @@ Run fwbuilder `$ fwbuilder` and create a new project.
 #### 4.1.1. Create a new firewall
 
 - Create new project file (_File -> Save as..._).
-- The firewall will be stored in an fwbuilder `.fwb` project file. Choose a name for the new project (e.g. `sirs-firewall`).
+- The firewall will be stored in an fwbuilder `.fwb` project file.
+Choose a name for the new project (e.g. `sirs-firewall`).
 - Click _Save_.
-- The main firewall configuration overview window should now be open. It is titled `Firewall Builder: [firewall project name]`. For the name suggested earlier, it will be `Firewall Builder: [sirs-firewall.fwb]`
+- The main firewall configuration overview window should now be open.
+It is titled `Firewall Builder: [firewall project name]`. For the name suggested earlier, it will be `Firewall Builder: [sirs-firewall.fwb]`
 - Click _Object -> New Object -> New Firewall_.
 - Configure the new firewall with:
   - The name may be something such as `sirs-fw-test`.
@@ -342,7 +367,8 @@ Run fwbuilder `$ fwbuilder` and create a new project.
 - Click `Next >`
 - The following window should have two radio buttons with only the _Configure interfaces manually_ option selected.
 - Click `Next >`
-- Add the network interfaces. The information to be given to each network interface configuration may be displayed through the command: `ifconfig`
+- Add the network interfaces.
+The information to be given to each network interface configuration may be displayed through the command: `ifconfig`
 - For each, you should fill in the following fields:
   - Name: ethX
   - Address: 192.168.Y.Z
@@ -350,7 +376,8 @@ Run fwbuilder `$ fwbuilder` and create a new project.
   - Label: external/internal/dmz
 - You should configure the interfaces in the firewall accordingly.
 - Set one of the interfaces as a management interface (you may do this by right-clicking one of the interface icons in Firewalls -> sirs-fw-test assuming that was the name you gave the firewall. Choose Edit in the dropdown and then check Management Interface checkbox).
-- Save the current project file, in case something happens. The default location for it is the current user's home directory.
+- Save the current project file, in case something happens.
+The default location for it is the current user's home directory.
 
 #### 4.1.2.	Accept ssh connections
 
@@ -363,7 +390,8 @@ Run fwbuilder `$ fwbuilder` and create a new project.
     $ sudo chmod seed.root /etc/fw
     ```
 
-- Create a new TCP service with destination port 22 (_Object -> New Object -> New TCP service_). Call it, for example, _TCP-AcceptSSH_.
+- Create a new TCP service with destination port 22 (_Object -> New Object -> New TCP service_).
+Call it, for example, _TCP-AcceptSSH_.
 - Create a new rule (_Rules -> Insert New Rule_).
 - Drag the new service into the _Service_ field (as depicted in Figure 2).
 - Change the _Action_ field to Accept (right-click on Deny to display a list where you can choose Accept).
@@ -376,14 +404,15 @@ _Image 2: Creating a new Service in Fwbuilder_
 
 #### 4.1.3. Accept telnet connections
 
-- Check whether your current machine (VM2) is accepting telnet connections. Test from VM1.
+- Check whether your current machine (VM2) is accepting telnet connections.
+Test from VM1.
 - Check all firewall rules with
 
     ```bash
     $ sudo iptables –L
     ```
 
-- Create a new TCP service with destination port 23.
+- Create a new TCP service with destination port `23`.
 - Create a new rule accepting connections to this new service.
 - Install the firewall.
 - Test the telnet connections from VM1 to VM2
@@ -396,7 +425,9 @@ Questions:
 
 #### 4.1.4. Redirect telnet connections
 
-This is an introductory exercise to what you will find in 4, and similar to what you did in 2.2. Make sure the relevant virtual machines have their gateway configured appropriately. If you are uncertain about the origin, destination and redirection of certain packets, tcpdump is a good way to make sense of the traffic.
+This is an introductory exercise to what you will find in 4, and similar to what you did in 2.2.
+Make sure the relevant virtual machines have their gateway configured appropriately.
+If you are uncertain about the origin, destination and redirection of certain packets, tcpdump is a good way to make sense of the traffic.
 
 The goal is to redirect telnet connections from VM1 to VM2 into telnet connections from VM1 and VM3.
 
@@ -428,10 +459,6 @@ Use iptables to configure the following requirements:
 - VM4 is an internal machine:
   - Accepts ssh requests.
   - Is able to open ssh connections to both external network and DMZ.
-
-**Acknowledgments**
-
-Adapted by: Pedro Adão
 
 ----
 
