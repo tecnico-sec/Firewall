@@ -387,7 +387,7 @@ The default location for it is the current user's home directory.
 
     ```bash
     $ sudo mkdir /etc/fw
-    $ sudo chmod seed.root /etc/fw
+    $ sudo chown seed:root /etc/fw
     ```
 
 - Create a new TCP service with destination port 22 (_Object -> New Object -> New TCP service_).
