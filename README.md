@@ -54,7 +54,7 @@ All the rules below should be applied in VM2 unless it is said otherwise.
 Start by flushing all existing rules (if there are any):
 
 ```sh
-$ sudo /sbin/iptables –F
+$ sudo /sbin/iptables -F
 ```
 
 ### 2.1. Simple Rules
@@ -66,19 +66,19 @@ Experiment with some simple rules in VM2.
 The following command adds a rule to drop all incoming ICMP packets.
 
 ```sh
-$ sudo /sbin/iptables –A INPUT –p icmp –j DROP
+$ sudo /sbin/iptables -A INPUT -p icmp -j DROP
 ```
 
 This new rule can be seen by listing all rules managed by iptables:
 
 ```sh
-$ sudo /sbin/iptables –L
+$ sudo /sbin/iptables -L
 ```
 
 Test this new rule by sending a ping from VM3 to VM2.
 
 - Were you able to see (on VM3) the ping being performed to VM2?
-- Were you able to see (on VM2) the ping from VM3? Why not?
+- Were you able to see (on VM2) the ping from VM3? Why?
 - Can you ping VM3 from VM4?
 - And VM4 from VM3?
 
@@ -97,7 +97,7 @@ Confirm that you can establish a telnet connection to VM2 (for example, try from
 Block these connections using the following command (in VM2).
 
 ```bash
-$ sudo /sbin/iptables –A INPUT –p tcp –-dport 23 –j DROP
+$ sudo /sbin/iptables -A INPUT -p tcp --dport 23 -j DROP
 ```
 
 Check whether telnet connections to VM2 are still possible.
@@ -105,8 +105,8 @@ Check whether telnet connections to VM2 are still possible.
 Delete the previous rule by executing one of the following commands:
 
 ```bash
-$ sudo /sbin/iptables –D INPUT 1
-$ sudo /sbin/iptables –D INPUT –p tcp –-dport 23 –j DROP
+$ sudo /sbin/iptables -D INPUT 1
+$ sudo /sbin/iptables -D INPUT -p tcp --dport 23 -j DROP
 ```
 
 #### 2.1.3. Ignore telnet connections from specific IP addresses
@@ -114,7 +114,7 @@ $ sudo /sbin/iptables –D INPUT –p tcp –-dport 23 –j DROP
 Ignore telnet connections from VM1:
 
 ```sh
-$ sudo /sbin/iptables –A INPUT –p tcp –s [host address] –-dport 23 –j DROP
+$ sudo /sbin/iptables -A INPUT -p tcp -s [host address] --dport 23 -j DROP
 ```
 
 Check that all machines except VM1 are able to open a telnet connection with VM2.
@@ -124,7 +124,7 @@ Check that all machines except VM1 are able to open a telnet connection with VM2
 Ignore telnet connections from the subnet that includes VM4.
 
 ```sh
-$ /sbin/iptables –A INPUT –p tcp –s 192.168.2.0/24 –-dport 23 –j DROP
+$ /sbin/iptables -A INPUT -p tcp -s 192.168.2.0/24 --dport 23 -j DROP
 ```
 
 At this point you should not be able to open a telnet connection to VM2 from VM4.
@@ -150,7 +150,7 @@ $ sudo /sbin/iptables -t nat -L
 Run:
 
 ```sh
-$ sudo /sbin/iptables -t nat -A PREROUTING -–dst 192.168.0.10 -p tcp --dport 23 –j DNAT  --to-destination 192.168.1.1
+$ sudo /sbin/iptables -t nat -A PREROUTING --dst 192.168.0.10 -p tcp --dport 23 -j DNAT  --to-destination 192.168.1.1
 ```
 
 Make a telnet connection from VM1 to VM2.
