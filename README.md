@@ -22,21 +22,21 @@ Based on the previous laboratory assignments of Virtual Networking and Traffic A
 | # Interface | Subnet | Adapter | | # Interface | Subnet | Adapter |
 |:---:|:---:|:---:|:---:|:---:|:---:|:---:|
 | __VM1__ |||||||
-| 1 | 192.168.0.100 | enp0s3 || 1 | 192.168.0.100 | enp0s3
+| 1 | 192.168.0.100 | eth0 || 1 | 192.168.0.100 | eth0
 | __VM2__ |
-| 1 | 192.168.0.10 | enp0s3 || 1 | 192.168.0.10 | enp0s3
-| 2 | 192.168.1.254 | enp0s8 || 2 | 192.168.1.254 | enp0s8
-| 3 | INTERNET | enp0s9 || 3 | __192.168.2.254__ | enp0s9
+| 1 | 192.168.0.10 | eth0 || 1 | 192.168.0.10 | eth0
+| 2 | 192.168.1.254 | eth1 || 2 | 192.168.1.254 | eth1
+| 3 | INTERNET | eth2 || 3 | __192.168.2.254__ | eth2
 | __VM3__: |
-| 1 | 192.168.1.1 | enp0s3 || 1 | 192.168.1.1 | enp0s3
+| 1 | 192.168.1.1 | eth0 || 1 | 192.168.1.1 | eth0
 | __VM4__: |
-| 1 | 192.168.1.4 | enp0s3 || 1 | __192.168.2.4__ | enp0s3
+| 1 | 192.168.1.4 | eth0 || 1 | __192.168.2.4__ | eth0
 
 _Table 1: Initial Configuration (from Virtual Networking and Traffic Analysis lab) on the left, and Target Configuration for this firewall lab on the right._
 
 For that, you should proceed as follows:
 
-- Add a new Adapter 3 (enp0s9) to VM2 and attach it to a new Internal Network _sw-3_ (or change it if you already had a 3rd adapter on VM2);
+- Add a new Adapter 3 (eth2) to VM2 and attach it to a new Internal Network _sw-3_ (or change it if you already had a 3rd adapter on VM2);
 - Attach Adapter 3 to the subnet `192.168.2.0/24` and set VM2's IP address as `192.168.2.254` on that adapter's configuration;
 - Attach VM4's Adapter 1 to _sw-3_;
 - Attach VM4's Adapter 1 to the subnet `192.168.2.0/24` and set VM4's IP address as `192.168.2.4` on that adapter's configuration. Do not forget to change the default gateway to be `192.168.2.254`.
@@ -311,7 +311,7 @@ Edit `/etc/ufw/before.rules` as root and add the following at the beginning of t
 *nat
 :PREROUTING ACCEPT [0:0]
 # Forward traffic from eth1 through eth0.
--A PREROUTING -i enp0s3 -d 192.168.0.10 -p tcp --dport 23 -j DNAT --to-destination 192.168.1.1:23
+-A PREROUTING -i eth0 -d 192.168.0.10 -p tcp --dport 23 -j DNAT --to-destination 192.168.1.1:23
 # do not delete the 'COMMIT' line or these nat table rules will not be processed
 COMMIT
 ```
@@ -443,7 +443,7 @@ If you are uncertain about the origin, destination and redirection of certain pa
 
 The goal is to redirect telnet connections from VM1 to VM2 into telnet connections from VM1 and VM3.
 
-- Configure enp0s3 as external.
+- Configure eth0 as external.
 - Add the IP address for VM3 in addresses (_Objects -> New Address_)
 - Add the necessary rule in the NAT table.
 - Set the original address (VM1), service and redirect address (VM3).
