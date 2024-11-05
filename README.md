@@ -87,8 +87,8 @@ Sugestion: Use traceroute to understand how the ICMP packet is going to the dest
 Use one of the following commands to erase this rule from VM2:
 
 ```sh
-$ sudo /sbin/iptables –D INPUT 1
-$ sudo /sbin/iptables –D INPUT –p icmp –j DROP
+$ sudo /sbin/iptables -D INPUT 1
+$ sudo /sbin/iptables -D INPUT -p icmp -j DROP
 ```
 
 #### 2.1.2. Ignore telnet connections
@@ -124,7 +124,7 @@ Check that all machines except VM1 are able to open a telnet connection with VM2
 Ignore telnet connections from the subnet that includes VM4.
 
 ```sh
-$ /sbin/iptables -A INPUT -p tcp -s 192.168.2.0/24 --dport 23 -j DROP
+$ sudo /sbin/iptables -A INPUT -p tcp -s 192.168.2.0/24 --dport 23 -j DROP
 ```
 
 At this point you should not be able to open a telnet connection to VM2 from VM4.
@@ -132,7 +132,7 @@ At this point you should not be able to open a telnet connection to VM2 from VM4
 Delete all existing rules.
 
 ```sh
-$ sudo /sbin/iptables –F
+$ sudo /sbin/iptables -F
 ```
 
 ### 2.2 Redirect connections
@@ -150,7 +150,7 @@ $ sudo /sbin/iptables -t nat -L
 Run:
 
 ```sh
-$ sudo /sbin/iptables -t nat -A PREROUTING --dst 192.168.0.10 -p tcp --dport 23 -j DNAT  --to-destination 192.168.1.1
+$ sudo /sbin/iptables -t nat -A PREROUTING --dst 192.168.0.10 -p tcp --dport 23 -j DNAT --to-destination 192.168.1.1
 ```
 
 Make a telnet connection from VM1 to VM2.
@@ -163,13 +163,13 @@ In order to redirect HTTP traffic to VM3 change from port `23` to `80` on the pr
 
 Use a browser in VM1 and go to `http://192.168.0.10` (this is VM2's address).
 
-- Run `netstat –t` onm VM3 to confirm that the connection is in fact between VM1 and VM3:
+- Run `netstat –t` on VM3 to confirm that the connection is in fact between VM1 and VM3:
 
 Delete now all existing rules:
 
 ```sh
-$ sudo /sbin/iptables –F
-$ sudo /sbin/iptables -t nat –F
+$ sudo /sbin/iptables -F
+$ sudo /sbin/iptables -t nat -F
 ```
 
 ## 3. UFW
