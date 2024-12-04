@@ -338,6 +338,12 @@ Make a telnet connection from VM1 to VM2.
 
 In order to redirect HTTP traffic to VM3, change parameter dport from `23` to `80` in the previous `/etc/ufw/before.rules` configuration and reload UFW again.
 
+Now launch a simple HTTP web server on VM3 using the following command:
+
+```sh
+$ python3 -m http.server 80
+```
+
 Use a browser in VM1 and go to `http://192.168.0.10` (this is VM2's address).
 
 - Run `netstat –t` on VM3 to confirm that the connection is in fact between VM1 and VM3:
