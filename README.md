@@ -191,6 +191,8 @@ Start by enabling UFW:
 $ sudo ufw enable
 ```
 
+If ufw is not installed, install it using ```sudo apt install ufw```.
+
 Contrary to iptables, UFW's default configuration is the conservative option of denying all incoming connections and routing paths.
 This is visible when UFW's status is checked:
 
